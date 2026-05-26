@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH7N - متجر الشحن</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080e1c;--card:#0f1a2e;--card2:#131f38;--border:#1a2a4a;--primary:#1877F2;--primary-light:#4a9af5;--accent:#00c6ff;--text:#e8edf5;--text2:#8899b0;--danger:#ff4757;--success:#2ed573;--warn:#ffa502;--radius:14px;--shadow:0 4px 24px rgba(0,0,0,.4)}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select{font-family:inherit;outline:none}
+
+/* Header */
+.header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,14,28,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.header-logo{display:flex;align-items:center;gap:10px}
+.header-logo img{height:40px;border-radius:10px}
+.header-logo span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-right{display:flex;align-items:center;gap:12px}
+.user-badge{background:var(--card2);padding:6px 14px;border-radius:20px;font-size:13px;color:var(--primary-light);border:1px solid var(--border)}
+.btn-myorders{background:var(--primary);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;transition:.3s}
+.btn-myorders:hover{background:var(--primary-light)}
+
+/* Hero */
+.hero{padding:100px 20px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 80%,rgba(24,119,242,.12),transparent 60%);pointer-events:none}
+.hero-mascot{width:180px;margin:0 auto 20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.hero h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.hero p{color:var(--text2);font-size:16px;max-width:400px;margin:0 auto}
+
+/* Section */
+.section{padding:30px 16px;max-width:600px;margin:0 auto}
+.section-title{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:22px;background:var(--primary);border-radius:4px}
+
+/* Games Grid */
+.games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.game-card{background:var(--card);border:2px solid transparent;border-radius:var(--radius);padding:16px 8px;text-align:center;cursor:pointer;transition:.3s;position:relative}
+.game-card:hover,.game-card.selected{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 0 20px rgba(24,119,242,.2)}
+.game-card img{width:56px;height:56px;border-radius:12px;margin-bottom:8px;object-fit:cover}
+.game-card .name{font-size:13px;font-weight:600}
+
+/* Packages Grid */
+.packages-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.package-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.package-card:hover,.package-card.selected{border-color:var(--primary);box-shadow:0 0 20px rgba(24,119,242,.2)}
+.package-card .badge{position:absolute;top:8px;left:8px;background:linear-gradient(135deg,#ff6b35,#ff4757);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.package-card .pass-img{width:100%;border-radius:8px;margin-bottom:8px;aspect-ratio:16/9;object-fit:cover}
+.package-card .amount{font-size:18px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.package-card .currency-name{font-size:12px;color:var(--text2);margin-bottom:6px}
+.package-card .market-price{font-size:13px;color:var(--text2);text-decoration:line-through}
+.package-card .price{font-size:20px;font-weight:900;color:var(--success)}
+.package-card .price small{font-size:12px;font-weight:600}
+
+/* Inputs */
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.input-group input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;transition:.3s}
+.input-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(24,119,242,.15)}
+
+/* Payment Cards */
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.payment-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:.3s}
+.payment-card:hover,.payment-card.selected{border-color:var(--primary)}
+.payment-card img{height:36px;margin-bottom:6px}
+.payment-card .pm-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.payment-card .pm-num{font-size:14px;color:var(--primary-light);font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px}
+.copy-btn{background:none;color:var(--primary);font-size:14px;padding:2px 6px;border-radius:4px;transition:.2s}
+.copy-btn:hover{background:rgba(24,119,242,.15)}
+
+/* Order Summary */
+.order-summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.order-summary h3{font-size:15px;margin-bottom:10px;color:var(--primary-light)}
+.summary-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.summary-row:last-child{border:none;font-weight:700;font-size:15px;color:var(--success);padding-top:8px}
+
+/* WhatsApp Button */
+.btn-whatsapp{width:100%;padding:16px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:16px;font-weight:700;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:10px;transition:.3s;font-size:17px}
+.btn-whatsapp:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,211,102,.3)}
+.btn-whatsapp svg{width:24px;height:24px}
+
+/* Trust */
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.trust-item{padding:16px 8px}
+.trust-item .icon{font-size:28px;margin-bottom:6px}
+.trust-item .title{font-size:13px;font-weight:700}
+.trust-item .desc{font-size:11px;color:var(--text2)}
+
+/* FAQ */
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.faq-q{padding:14px 16px;font-weight:600;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.faq-q:hover{background:rgba(24,119,242,.05)}
+.faq-q .arrow{transition:.3s;font-size:12px}
+.faq-item.open .faq-q .arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:.3s;padding:0 16px;font-size:13px;color:var(--text2);line-height:1.8}
+.faq-item.open .faq-a{max-height:200px;padding:0 16px 14px}
+
+/* Footer */
+.footer{text-align:center;padding:30px 16px;border-top:1px solid var(--border);color:var(--text2);font-size:12px}
+.footer a{color:var(--primary)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:380px;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.modal h2{text-align:center;font-size:20px;margin-bottom:16px}
+.modal .tab-toggle{display:flex;background:var(--bg);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.modal .tab-toggle button{flex:1;padding:10px;background:none;color:var(--text2);font-weight:600;font-size:14px;transition:.2s}
+.modal .tab-toggle button.active{background:var(--primary);color:#fff}
+.modal .input-group{margin-bottom:12px}
+
+/* Orders Modal */
+.orders-modal .modal{max-width:440px;max-height:80vh;overflow-y:auto}
+.order-item{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+.order-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.order-item .oid{font-size:11px;color:var(--text2)}
+.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.status-badge.s-waiting{background:rgba(255,165,2,.15);color:var(--warn)}
+.status-badge.s-processing{background:rgba(24,119,242,.15);color:var(--primary-light)}
+.status-badge.s-done{background:rgba(46,213,115,.15);color:var(--success)}
+.status-badge.s-cancel{background:rgba(255,71,87,.15);color:var(--danger)}
+.order-item .info{font-size:13px;display:flex;justify-content:space-between}
+
+/* Spinner */
+.spinner-wrap{display:flex;justify-content:center;padding:40px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Community */
+.community{text-align:center;padding:20px}
+.community h3{font-size:18px;margin-bottom:10px}
+.community-btn{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;padding:10px 24px;border-radius:20px;font-weight:600;transition:.3s}
+.community-btn:hover{background:var(--primary-light)}
+
+/* Animations */
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.hidden{display:none!important}
+.error-msg{color:var(--danger);text-align:center;font-size:13px;margin:8px 0}
+.success-msg{color:var(--success);text-align:center;font-size:13px;margin:8px 0}
+
+@media(min-width:480px){.packages-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <img src="https://res.cloudinary.com/dpsey0ozd/image/upload/v1779409379/Picsart_26-05-21_17-31-20-590_gniime.jpg" alt="CH7N">
+    <span>CH7N</span>
+  </div>
+  <div class="header-right">
+    <span class="user-badge hidden" id="userBadge"></span>
+    <button class="btn-myorders hidden" id="btnMyOrders" onclick="showMyOrders()">طلباتي</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <img src="https://res.cloudinary.com/dpsey0ozd/image/upload/v1778943953/mascot-welcome_jhyzjb.png" alt="CH7N" class="hero-mascot">
+  <h1>متجر CH7N</h1>
+  <p>متاجر الشحن كثيرة... لكن الفرق بالتعامل</p>
+</section>
+
+<!-- GAMES -->
+<section class="section" id="gamesSection">
+  <div class="section-title">اختر اللعبة</div>
+  <div id="gamesContainer">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</section>
+
+<!-- PACKAGES -->
+<section class="section hidden" id="packagesSection">
+  <div class="section-title">اختر الباقة</div>
+  <div id="packagesContainer"></div>
+</section>
+
+<!-- PLAYER ID -->
+<section class="section hidden" id="playerIdSection">
+  <div class="section-title">بيانات الحساب</div>
+  <div class="input-group">
+    <label id="playerIdLabel">رقم اللاعب (ID)</label>
+    <input type="text" id="playerIdInput" placeholder="أدخل رقم اللاعب">
+  </div>
+</section>
+
+<!-- PAYMENT -->
+<section class="section hidden" id="paymentSection">
+  <div class="section-title">طريقة الدفع</div>
+  <div class="payment-methods">
+    <div class="payment-card" onclick="selectPayment('bankily', this)">
+      <img src="https://res.cloudinary.com/dpsey0ozd/image/upload/v1778942177/75779_imo7tf.png" alt="Bankily">
+      <div class="pm-name">Bankily</div>
+      <div class="pm-num">48263620 <button class="copy-btn" onclick="event.stopPropagation();copyNum('48263620')">📋</button></div>
+    </div>
+    <div class="payment-card" onclick="selectPayment('sedad', this)">
+      <img src="https://res.cloudinary.com/dpsey0ozd/image/upload/v1778942252/75788_glamus.png" alt="Sedad">
+      <div class="pm-name">Sedad</div>
+      <div class="pm-num">48263620 <button class="copy-btn" onclick="event.stopPropagation();copyNum('48263620')">📋</button></div>
+    </div>
+  </div>
+  <div class="input-group">
+    <label>رقم هاتف المرسل</label>
+    <input type="tel" id="senderPhone" placeholder="مثال: 22XXXXXX">
+  </div>
+</section>
+
+<!-- ORDER SUMMARY -->
+<section class="section hidden" id="summarySection">
+  <div class="section-title">ملخص الطلب</div>
+  <div class="order-summary" id="orderSummary"></div>
+  <button class="btn-whatsapp" id="btnOrder" onclick="placeOrder()">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    اطلب عبر واتساب
+  </button>
+</section>
+
+<!-- TRUST -->
+<section class="section">
+  <div class="section-title">لماذا CH7N؟</div>
+  <div class="trust-grid">
+    <div class="trust-item"><div class="icon">⚡</div><div class="title">شحن فوري</div><div class="desc">تسليم سريع خلال دقائق</div></div>
+    <div class="trust-item"><div class="icon">💰</div><div class="title">أسعار منافسة</div><div class="desc">أقل من سعر السوق</div></div>
+    <div class="trust-item"><div class="icon">🛡️</div><div class="title">آمن وموثوق</div><div class="desc">آلاف العملاء الراضين</div></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="section-title">الأسئلة الشائعة</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">كيفية الطلب؟ <span class="arrow">▼</span></div>
+    <div class="faq-a">اختر اللعبة والباقة، أدخل رقم اللاعب، اختر طريقة الدفع، ثم اضغط على زر واتساب لإتمام الطلب.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">كم يستغرق الشحن؟ <span class="arrow">▼</span></div>
+    <div class="faq-a">يتم الشحن في أسرع وقت ممكن، عادة خلال بضع دقائق بعد تأكيد الدفع.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">ما هي طرق الدفع المتاحة؟ <span class="arrow">▼</span></div>
+    <div class="faq-a">نقبل الدفع عبر Bankily و Sedad. قم بتحويل المبلغ إلى الرقم المحدد ثم أرسل إثبات التحويل.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">هل يمكنني إلغاء الطلب؟ <span class="arrow">▼</span></div>
+    <div class="faq-a">يمكنك التواصل معنا عبر واتساب لإلغاء الطلب قبل تنفيذه.</div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section class="section community">
+  <h3>انضم لمجتمعنا</h3>
+  <p style="color:var(--text2);font-size:14px;margin-bottom:14px">تابعنا للحصول على أحدث العروض</p>
+  <a href="https://wa.me/22233775202" class="community-btn" target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    تواصل معنا
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>© 2025 CH7N - جميع الحقوق محفوظة</p>
+  <p style="margin-top:4px">متجر شحن رقمي موريتاني 🇲🇷</p>
+</footer>
+
+<!-- LOGIN / REGISTER MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">تسجيل الدخول</h2>
+    <div class="tab-toggle">
+      <button class="active" onclick="switchAuthTab('login')">دخول</button>
+      <button onclick="switchAuthTab('register')">تسجيل</button>
+    </div>
+    <form id="authForm" onsubmit="handleAuth(event)">
+      <div class="input-group" id="nameField" style="display:none">
+        <label>الاسم</label>
+        <input type="text" id="regName" placeholder="أدخل اسمك">
+      </div>
+      <div class="input-group">
+        <label>رقم الهاتف</label>
+        <input type="tel" id="authPhone" placeholder="مثال: 22XXXXXX">
+      </div>
+      <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="authPass" placeholder="كلمة المرور">
+      </div>
+      <div id="authMsg"></div>
+      <button type="submit" id="authBtn" style="width:100%;padding:12px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;transition:.3s">دخول</button>
+    </form>
+    <button onclick="closeAuthModal()" style="width:100%;margin-top:10px;padding:10px;background:none;color:var(--text2);font-size:13px">إلغاء</button>
+  </div>
+</div>
+
+<!-- MY ORDERS MODAL -->
+<div class="modal-overlay orders-modal" id="ordersModal">
+  <div class="modal">
+    <h2>طلباتي</h2>
+    <div id="ordersContainer"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    <button onclick="document.getElementById('ordersModal').classList.remove('show')" style="width:100%;margin-top:10px;padding:10px;background:none;color:var(--text2);font-size:13px">إغلاق</button>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAo-jLjGPvmbsGsws3bULDVXCP1XRZVju7N1j0XVFenAXdygl49jkB0ZS_wuHzwsdD/exec';
+const WHATSAPP_NUM = '22233775202';
+
+let allGames = [];
+let allPackages = [];
+let selectedGame = null;
+let selectedPackage = null;
+let selectedPayment = null;
+let currentUser = JSON.parse(localStorage.getItem('ch7n_user') || 'null');
+let pendingOrder = null;
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  if (currentUser) showLoggedIn();
+  initFastLoad();
+});
+
+function showLoggedIn() {
+  document.getElementById('userBadge').textContent = currentUser.name;
+  document.getElementById('userBadge').classList.remove('hidden');
+  document.getElementById('btnMyOrders').classList.remove('hidden');
+}
+
+// ===== API =====
+async function api(action, params = {}) {
+  const url = new URL(APPS_SCRIPT_URL);
+  url.searchParams.set('action', action);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  try {
+    return await fetch(url.toString(), {
+      method: 'GET',
+      redirect: 'follow'
+    })
+    .then(r => r.text())
+    .then(text => JSON.parse(text));
+  } catch (e) {
+    return { success: false, error: 'خطأ في الاتصال بالخادم' };
+  }
+}
+
+// ===== FAST LOAD & CACHING STRATEGY (Stale-While-Revalidate) =====
+function initFastLoad() {
+  // 1. Load games from LocalStorage Cache immediately (Instant Render)
+  const cachedGames = localStorage.getItem('ch7n_cached_games');
+  if (cachedGames) {
+    allGames = JSON.parse(cachedGames);
+    renderGamesUI(allGames);
+    // Prefetch packages in the background if we have cached games
+    prefetchAllPackages(allGames);
+  }
+
+  // 2. Fetch fresh games in the background
+  loadGamesFromServer();
+}
+
+async function loadGamesFromServer() {
+  const res = await api('getGames');
+  if (res.success) {
+    allGames = res.games;
+    // Save to cache
+    localStorage.setItem('ch7n_cached_games', JSON.stringify(allGames));
+    // Render the fresh data
+    renderGamesUI(allGames);
+    // Prefetch packages for all fresh games in the background
+    prefetchAllPackages(allGames);
+  } else if (allGames.length === 0) {
+    // If we have no cache and server fails
+    document.getElementById('gamesContainer').innerHTML = '<p class="error-msg">فشل تحميل الألعاب، حاول مرة أخرى</p>';
+  }
+}
+
+function renderGamesUI(games) {
+  const container = document.getElementById('gamesContainer');
+  if (games.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text2)">لا توجد ألعاب متاحة حالياً</p>';
+    return;
+  }
+  
+  // Save selected game state before re-render if any
+  const previousSelectedId = selectedGame ? selectedGame.gameId : null;
+
+  container.innerHTML = '<div class="games-grid fade-in">' + games.map(g => `
+    <div class="game-card ${previousSelectedId === g.gameId ? 'selected' : ''}" onclick="selectGame('${g.gameId}', this)" data-id="${g.gameId}">
+      <img src="${g.icon}" alt="${g.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 56 56%22><rect fill=%22%231a2a4a%22 width=%2256%22 height=%2256%22 rx=%2212%22/><text x=%2228%22 y=%2234%22 fill=%22%231877F2%22 text-anchor=%22middle%22 font-size=%2220%22>🎮</text></svg>'">
+      <div class="name">${g.name}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+// Prefetch all packages silently in the background so that clicking any game is INSTANT
+async function prefetchAllPackages(games) {
+  // We fetch packages sequentially in the background to avoid rate limits, or concurrently
+  for (const g of games) {
+    // Wait 200ms between requests to play nice with Apps Script
+    await new Promise(resolve => setTimeout(resolve, 200));
+    fetchPackagesSilent(g.gameId);
+  }
+}
+
+async function fetchPackagesSilent(gameId) {
+  const res = await api('getPackages', { gameId });
+  if (res.success) {
+    localStorage.setItem(`ch7n_cached_pkgs_${gameId}`, JSON.stringify(res.packages));
+    // If the currently selected game is this one, we silently update the packages UI in real-time
+    if (selectedGame && selectedGame.gameId === gameId) {
+      allPackages = res.packages;
+      renderPackagesUI(res.packages);
+    }
+  }
+}
+
+// ===== SELECT GAME =====
+function selectGame(gameId, el) {
+  document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedGame = allGames.find(g => g.gameId === gameId);
+  selectedPackage = null;
+
+  // Show packages section
+  document.getElementById('packagesSection').classList.remove('hidden');
+  document.getElementById('playerIdSection').classList.add('hidden');
+  document.getElementById('paymentSection').classList.add('hidden');
+  document.getElementById('summarySection').classList.add('hidden');
+
+  // Update player ID label
+  if (selectedGame.requiresId) {
+    document.getElementById('playerIdLabel').textContent = `رقم اللاعب (${selectedGame.currency})`;
+    document.getElementById('playerIdInput').placeholder = `أدخل رقم اللاعب في ${selectedGame.name}`;
+    document.getElementById('playerIdInput').required = true;
+  } else {
+    document.getElementById('playerIdLabel').textContent = 'رقم الحساب (اختياري)';
+    document.getElementById('playerIdInput').placeholder = 'رقم الحساب إن وجد';
+    document.getElementById('playerIdInput').required = false;
+  }
+
+  // Load Packages using Stale-While-Revalidate
+  loadPackagesFast(gameId);
+
+  document.getElementById('packagesSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== PACKAGES =====
+function loadPackagesFast(gameId) {
+  const container = document.getElementById('packagesContainer');
+  
+  // 1. Try loading from cache immediately (Instant!)
+  const cachedPkgs = localStorage.getItem(`ch7n_cached_pkgs_${gameId}`);
+  if (cachedPkgs) {
+    allPackages = JSON.parse(cachedPkgs);
+    renderPackagesUI(allPackages);
+  } else {
+    // If not in cache, show spinner
+    container.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  }
+
+  // 2. Fetch fresh packages in the background
+  fetchFreshPackages(gameId);
+}
+
+async function fetchFreshPackages(gameId) {
+  const res = await api('getPackages', { gameId });
+  if (res.success) {
+    allPackages = res.packages;
+    // Save to cache
+    localStorage.setItem(`ch7n_cached_pkgs_${gameId}`, JSON.stringify(allPackages));
+    
+    // Update UI only if the user hasn't switched games in the meantime
+    if (selectedGame && selectedGame.gameId === gameId) {
+      renderPackagesUI(allPackages);
+    }
+  } else if (!localStorage.getItem(`ch7n_cached_pkgs_${gameId}`)) {
+    const container = document.getElementById('packagesContainer');
+    container.innerHTML = '<p class="error-msg">فشل تحميل الباقات</p>';
+  }
+}
+
+function renderPackagesUI(packages) {
+  const container = document.getElementById('packagesContainer');
+  if (packages.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text2)">لا توجد باقات متاحة حالياً</p>';
+    return;
+  }
+
+  const previousSelectedPkgId = selectedPackage ? selectedPackage.packageId : null;
+
+  container.innerHTML = '<div class="packages-grid fade-in">' + packages.map(p => {
+    let inner = '';
+    if (p.isPass) {
+      inner = `<img class="pass-img" src="${p.passImg}" alt="${p.name}" onerror="this.style.display='none'">`;
+      inner += `<div class="amount">${p.name}</div>`;
+    } else {
+      inner = `<div class="amount">${p.amount} ${p.currency}</div>`;
+    }
+    if (p.popular) inner += '<div class="badge">🔥 الأكثر طلباً</div>';
+    if (p.marketPrice) inner += `<div class="market-price">${p.marketPrice} MRU</div>`;
+    inner += `<div class="price">${p.price} <small>MRU</small></div>`;
+    return `<div class="package-card ${previousSelectedPkgId === p.packageId ? 'selected' : ''}" onclick="selectPackage('${p.packageId}', this)" data-id="${p.packageId}">${inner}</div>`;
+  }).join('') + '</div>';
+}
+
+function selectPackage(pkgId, el) {
+  document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPackage = allPackages.find(p => p.packageId === pkgId);
+
+  // Show remaining sections
+  document.getElementById('playerIdSection').classList.remove('hidden');
+  document.getElementById('paymentSection').classList.remove('hidden');
+  document.getElementById('summarySection').classList.remove('hidden');
+  selectedPayment = null;
+  document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+  updateSummary();
+
+  document.getElementById('playerIdSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== PAYMENT =====
+function selectPayment(method, el) {
+  document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPayment = method;
+  updateSummary();
+}
+
+function copyNum(num) {
+  navigator.clipboard.writeText(num).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns.forEach(b => { b.textContent = '✅'; setTimeout(() => b.textContent = '📋', 1500); });
+  });
+}
+
+// ===== SUMMARY =====
+function updateSummary() {
+  if (!selectedGame || !selectedPackage) return;
+  const pkg = selectedPackage;
+  const game = selectedGame;
+  const payText = selectedPayment === 'bankily' ? 'Bankily' : selectedPayment === 'sedad' ? 'Sedad' : '—';
+  const pkgName = pkg.isPass ? pkg.name : `${pkg.amount} ${pkg.currency}`;
+
+  document.getElementById('orderSummary').innerHTML = `
+    <h3>ملخص الطلب</h3>
+    <div class="summary-row"><span>اللعبة</span><span>${game.name}</span></div>
+    <div class="summary-row"><span>الباقة</span><span>${pkgName}</span></div>
+    <div class="summary-row"><span>طريقة الدفع</span><span>${payText}</span></div>
+    ${pkg.marketPrice ? `<div class="summary-row"><span>سعر السوق</span><span style="text-decoration:line-through;color:var(--text2)">${pkg.marketPrice} MRU</span></div>` : ''}
+    <div class="summary-row"><span>السعر النهائي</span><span>${pkg.price} MRU</span></div>
+  `;
+}
+
+// ===== AUTH =====
+let authMode = 'login';
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  const btns = document.querySelectorAll('.tab-toggle button');
+  btns[0].classList.toggle('active', mode === 'login');
+  btns[1].classList.toggle('active', mode === 'register');
+  document.getElementById('nameField').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('authBtn').textContent = mode === 'login' ? 'دخول' : 'تسجيل';
+  document.getElementById('authTitle').textContent = mode === 'login' ? 'تسجيل الدخول' : 'حساب جديد';
+  document.getElementById('authMsg').innerHTML = '';
+}
+
+async function handleAuth(e) {
+  e.preventDefault();
+  const phone = document.getElementById('authPhone').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+  const msgEl = document.getElementById('authMsg');
+
+  if (!phone || !pass) {
+    msgEl.innerHTML = '<p class="error-msg">أدخل جميع الحقول</p>';
+    return;
+  }
+
+  document.getElementById('authBtn').disabled = true;
+  document.getElementById('authBtn').textContent = 'جاري التحميل...';
+
+  let res;
+  if (authMode === 'register') {
+    const name = document.getElementById('regName').value.trim();
+    if (!name) {
+      msgEl.innerHTML = '<p class="error-msg">أدخل اسمك</p>';
+      document.getElementById('authBtn').disabled = false;
+      document.getElementById('authBtn').textContent = 'تسجيل';
+      return;
+    }
+    res = await api('register', { phone, password: pass, name });
+  } else {
+    res = await api('login', { phone, password: pass });
+  }
+
+  document.getElementById('authBtn').disabled = false;
+  document.getElementById('authBtn').textContent = authMode === 'login' ? 'دخول' : 'تسجيل';
+
+  if (!res.success) {
+    msgEl.innerHTML = `<p class="error-msg">${res.error}</p>`;
+    return;
+  }
+
+  currentUser = res.user;
+  localStorage.setItem('ch7n_user', JSON.stringify(currentUser));
+  showLoggedIn();
+  closeAuthModal();
+  if (pendingOrder) completeOrder();
+}
+
+function openAuthModal() {
+  document.getElementById('authModal').classList.add('show');
+  document.getElementById('authMsg').innerHTML = '';
+}
+function closeAuthModal() {
+  document.getElementById('authModal').classList.remove('show');
+}
+
+// ===== PLACE ORDER =====
+function placeOrder() {
+  if (!selectedGame || !selectedPackage) {
+    alert('اختر اللعبة والباقة أولاً');
+    return;
+  }
+  if (!selectedPayment) {
+    alert('اختر طريقة الدفع');
+    return;
+  }
+  const senderPhone = document.getElementById('senderPhone').value.trim();
+  if (!senderPhone) {
+    alert('أدخل رقم هاتف المرسل');
+    return;
+  }
+  if (selectedGame.requiresId) {
+    const pid = document.getElementById('playerIdInput').value.trim();
+    if (!pid) {
+      alert('أدخل رقم اللاعب');
+      return;
+    }
+  }
+
+  if (!currentUser) {
+    pendingOrder = true;
+    openAuthModal();
+    return;
+  }
+
+  completeOrder();
+}
+
+async function completeOrder() {
+  pendingOrder = null;
+  const playerId = document.getElementById('playerIdInput').value.trim();
+  const senderPhone = document.getElementById('senderPhone').value.trim();
+  const pkg = selectedPackage;
+  const game = selectedGame;
+  const pkgName = pkg.isPass ? pkg.name : `${pkg.amount} ${pkg.currency}`;
+  const payText = selectedPayment === 'bankily' ? 'Bankily' : 'Sedad';
+
+  // Save order
+  const res = await api('createOrder', {
+    customerPhone: currentUser.phone,
+    game: game.name,
+    package: pkgName,
+    amount: pkg.amount,
+    currency: pkg.currency,
+    price: pkg.price,
+    playerId: playerId,
+    paymentMethod: payText,
+    senderPhone: senderPhone
+  });
+
+  // Send WhatsApp
+  const msg = `🎮 طلب شحن جديد\n\n` +
+    `📦 اللعبة: ${game.name}\n` +
+    `💎 الباقة: ${pkgName}\n` +
+    `💰 السعر: ${pkg.price} MRU\n` +
+    `👤 رقم اللاعب: ${playerId || 'غير محدد'}\n` +
+    `💳 طريقة الدفع: ${payText}\n` +
+    `📱 رقم المحول: ${senderPhone}\n` +
+    `📞 العميل: ${currentUser.name} (${currentUser.phone})`;
+
+  if (res.success) {
+    alert(`تم إرسال طلبك بنجاح! رقم طلبك: ${res.orderId}`);
+    window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+  } else {
+    window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+}
+
+// ===== MY ORDERS =====
+async function showMyOrders() {
+  if (!currentUser) return;
+  document.getElementById('ordersModal').classList.add('show');
+  const container = document.getElementById('ordersContainer');
+  container.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const res = await api('getMyOrders', { customerPhone: currentUser.phone });
+  if (!res.success || res.orders.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px">لا توجد طلبات</p>';
+    return;
+  }
+
+  container.innerHTML = res.orders.map(o => {
+    const sClass = o.status === 'قيد الانتظار' ? 's-waiting' : o.status === 'قيد التنفيذ' ? 's-processing' : o.status === 'مكتمل' ? 's-done' : 's-cancel';
+    return `<div class="order-item">
+      <div class="top">
+        <span class="oid">${o.orderId}</span>
+        <span class="status-badge ${sClass}">${o.status}</span>
+      </div>
+      <div class="info">
+        <span>${o.game} - ${o.package}</span>
+        <span>${o.price} MRU</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
