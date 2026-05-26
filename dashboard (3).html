@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH7N - لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080e1c;--card:#0f1a2e;--card2:#131f38;--border:#1a2a4a;--primary:#1877F2;--primary-light:#4a9af5;--accent:#00c6ff;--text:#e8edf5;--text2:#8899b0;--danger:#ff4757;--success:#2ed573;--warn:#ffa502;--radius:14px}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:100%;max-width:380px;text-align:center}
+.login-box h1{font-family:'Orbitron',sans-serif;font-size:28px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.login-box p{color:var(--text2);font-size:13px;margin-bottom:20px}
+.input-group{margin-bottom:14px;text-align:right}
+.input-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px}
+.input-group input,.input-group select,.input-group textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;transition:.3s}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--primary)}
+.btn{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:.3s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff;font-size:12px;padding:6px 14px;border-radius:8px}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--text2);font-size:12px;padding:6px 14px;border-radius:8px}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.msg{text-align:center;font-size:13px;margin:8px 0}
+.msg.error{color:var(--danger)}
+.msg.success{color:var(--success)}
+
+/* Dashboard */
+.dashboard{display:none}
+.dash-header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.dash-header h1{font-family:'Orbitron',sans-serif;font-size:18px;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dash-header .logout{background:none;color:var(--danger);font-size:13px;font-weight:600}
+
+/* Tabs */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab-btn{flex:1;padding:14px 10px;text-align:center;font-weight:600;font-size:13px;color:var(--text2);background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-content{display:none;padding:20px;max-width:900px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-card .num{font-size:28px;font-weight:900}
+.stat-card .label{font-size:12px;color:var(--text2)}
+.stat-card.blue .num{color:var(--primary)}
+.stat-card.yellow .num{color:var(--warn)}
+.stat-card.green .num{color:var(--success)}
+.stat-card.purple .num{color:#a855f7}
+
+/* Search/Filter */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar input,.toolbar select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px}
+.toolbar input{flex:1;min-width:150px}
+
+/* Table */
+.table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--card2);padding:12px 10px;text-align:right;font-weight:600;color:var(--text2);white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:10px;border-bottom:1px solid rgba(255,255,255,.03)}
+tr:hover td{background:rgba(24,119,242,.03)}
+.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.status-badge.s-waiting{background:rgba(255,165,2,.15);color:var(--warn)}
+.status-badge.s-processing{background:rgba(24,119,242,.15);color:var(--primary-light)}
+.status-badge.s-done{background:rgba(46,213,115,.15);color:var(--success)}
+.status-badge.s-cancel{background:rgba(255,71,87,.15);color:var(--danger)}
+select.status-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:8px;font-size:12px}
+
+/* Game/Package Management */
+.games-list{display:grid;gap:12px;margin-bottom:20px}
+.game-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.game-item img{width:44px;height:44px;border-radius:10px;object-fit:cover}
+.game-item .info{flex:1;min-width:100px}
+.game-item .info .name{font-weight:700;font-size:14px}
+.game-item .info .meta{font-size:11px;color:var(--text2)}
+.game-item .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle-switch{position:relative;width:40px;height:22px;cursor:pointer}
+.toggle-switch input{display:none}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:22px;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-switch input:checked+.toggle-slider{background:var(--success)}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(18px)}
+
+/* Add Form */
+.add-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.add-form h3{font-size:15px;margin-bottom:12px;color:var(--primary-light)}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.form-row .input-group{flex:1;min-width:120px;margin-bottom:0}
+.checkbox-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.checkbox-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--primary)}
+
+/* Packages sub */
+.packages-sub{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
+.pkg-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pkg-item .info{flex:1;min-width:80px}
+.pkg-item .info .name{font-weight:600;font-size:13px}
+.pkg-item .info .meta{font-size:11px;color:var(--text2)}
+
+/* Spinner */
+.spinner-wrap{display:flex;justify-content:center;padding:40px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty */
+.empty{text-align:center;color:var(--text2);padding:40px;font-size:14px}
+
+@media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h1>CH7N</h1>
+    <p>لوحة تحكم الإدارة</p>
+    <form onsubmit="adminLogin(event)">
+      <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="adminUser" placeholder="اسم المستخدم">
+      </div>
+      <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="adminPass" placeholder="كلمة المرور">
+      </div>
+      <div id="loginMsg"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%">تسجيل الدخول</button>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-header">
+    <h1>CH7N لوحة التحكم</h1>
+    <button class="logout" onclick="logout()">تسجيل الخروج</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('orders', this)">📋 الطلبات</button>
+    <button class="tab-btn" onclick="switchTab('games', this)">🎮 الألعاب والباقات</button>
+    <button class="tab-btn" onclick="switchTab('customers', this)">👥 العملاء</button>
+  </div>
+
+  <!-- TAB: ORDERS -->
+  <div class="tab-content active" id="tab-orders">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="toolbar">
+      <input type="text" id="searchOrders" placeholder="بحث بالاسم أو الهاتف..." oninput="filterOrders()">
+      <select id="filterStatus" onchange="filterOrders()">
+        <option value="">كل الحالات</option>
+        <option value="قيد الانتظار">قيد الانتظار</option>
+        <option value="قيد التنفيذ">قيد التنفيذ</option>
+        <option value="مكتمل">مكتمل</option>
+        <option value="ملغي">ملغي</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>رقم الطلب</th><th>العميل</th><th>الهاتف</th><th>اللعبة</th><th>الباقة</th><th>الكمية</th><th>العملة</th><th>السعر</th><th>رقم اللاعب</th><th>الدفع</th><th>المحول</th><th>الحالة</th><th>التاريخ</th></tr>
+        </thead>
+        <tbody id="ordersTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: GAMES -->
+  <div class="tab-content" id="tab-games">
+    <div class="add-form" id="addGameForm">
+      <h3>➕ إضافة لعبة جديدة</h3>
+      <div class="form-row">
+        <div class="input-group"><label>اسم اللعبة</label><input id="newGameName" placeholder="مثال: Free Fire"></div>
+        <div class="input-group"><label>رابط الأيقونة</label><input id="newGameIcon" placeholder="URL"></div>
+      </div>
+      <div class="form-row">
+        <div class="input-group"><label>العملة</label><input id="newGameCurrency" placeholder="مثال: Diamond"></div>
+        <div class="input-group"><label>رابط صورة العملة</label><input id="newGameUnitImg" placeholder="URL"></div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="newGameRequiresId">
+        <label>يتطلب رقم اللاعب (ID)</label>
+      </div>
+      <button class="btn btn-primary" onclick="addGame()">إضافة اللعبة</button>
+      <div id="addGameMsg"></div>
+    </div>
+
+    <h3 style="margin-bottom:12px">الألعاب الحالية</h3>
+    <div class="games-list" id="gamesList"></div>
+
+    <!-- Packages Section -->
+    <div id="packagesSection" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h3 id="packagesTitle">باقات اللعبة</h3>
+        <button class="btn btn-sm btn-ghost" onclick="hidePackages()">رجوع</button>
+      </div>
+
+      <div class="add-form">
+        <h3>➕ إضافة باقة</h3>
+        <div class="form-row">
+          <div class="input-group"><label>الاسم (للباس)</label><input id="newPkgName" placeholder="مثال: عضوية اسبوعية"></div>
+          <div class="input-group"><label>الكمية</label><input id="newPkgAmount" type="number" placeholder="110"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>العملة</label><input id="newPkgCurrency" placeholder="Diamond"></div>
+          <div class="input-group"><label>السعر (MRU)</label><input id="newPkgPrice" type="number" placeholder="55"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>سعر السوق (اختياري)</label><input id="newPkgMarketPrice" type="number" placeholder="65"></div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="newPkgIsPass" onchange="document.getElementById('passImgField').style.display=this.checked?'block':'none'">
+          <label>باقة باس (Pass)</label>
+        </div>
+        <div class="input-group hidden" id="passImgField"><label>رابط صورة الباس</label><input id="newPkgPassImg" placeholder="URL"></div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="newPkgPopular">
+          <label>الأكثر طلباً</label>
+        </div>
+        <button class="btn btn-primary" onclick="addPackage()">إضافة الباقة</button>
+        <div id="addPkgMsg"></div>
+      </div>
+
+      <div id="packagesList"></div>
+    </div>
+  </div>
+
+  <!-- TAB: CUSTOMERS -->
+  <div class="tab-content" id="tab-customers">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>الاسم</th><th>رقم الهاتف</th><th>عدد الطلبات</th><th>تاريخ التسجيل</th></tr>
+        </thead>
+        <tbody id="customersTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAo-jLjGPvmbsGsws3bULDVXCP1XRZVju7N1j0XVFenAXdygl49jkB0ZS_wuHzwsdD/exec';
+let allOrders = [];
+let allGames = [];
+let allPackages = {};
+let currentGameId = null;
+
+// ===== LOGIN =====
+async function adminLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
+  if (!username || !password) {
+    document.getElementById('loginMsg').innerHTML = '<p class="msg error">أدخل البيانات</p>';
+    return;
+  }
+  const res = await api('adminLogin', { username, password });
+  if (res.success) {
+    localStorage.setItem('ch7n_admin', 'true');
+    showDashboard();
+  } else {
+    document.getElementById('loginMsg').innerHTML = `<p class="msg error">${res.error}</p>`;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('ch7n_admin');
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadOrders();
+  loadGames();
+  loadCustomers();
+}
+
+// Auto-login
+if (localStorage.getItem('ch7n_admin')) showDashboard();
+
+// ===== API =====
+async function api(action, params = {}) {
+  const url = new URL(APPS_SCRIPT_URL);
+  url.searchParams.set('action', action);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  try {
+    return await fetch(url.toString(), {
+      method: 'GET',
+      redirect: 'follow'
+    })
+    .then(r => r.text())
+    .then(text => JSON.parse(text));
+  } catch (e) {
+    return { success: false, error: 'خطأ في الاتصال' };
+  }
+}
+
+// ===== TABS =====
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ===== ORDERS =====
+async function loadOrders() {
+  const res = await api('getAllOrders');
+  if (!res.success) return;
+  allOrders = res.orders;
+  renderStats();
+  renderOrders(allOrders);
+}
+
+function renderStats() {
+  const total = allOrders.length;
+  const waiting = allOrders.filter(o => o.status === 'قيد الانتظار').length;
+  const done = allOrders.filter(o => o.status === 'مكتمل').length;
+  const revenue = allOrders.filter(o => o.status === 'مكتمل').reduce((s, o) => s + Number(o.price || 0), 0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card purple"><div class="num">${total}</div><div class="label">اجمالي الطلبات</div></div>
+    <div class="stat-card yellow"><div class="num">${waiting}</div><div class="label">قيد الانتظار</div></div>
+    <div class="stat-card green"><div class="num">${done}</div><div class="label">مكتمل</div></div>
+    <div class="stat-card blue"><div class="num">${revenue}</div><div class="label">الإيرادات (MRU)</div></div>
+  `;
+}
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('ordersTable');
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="13" class="empty">لا توجد طلبات</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o => {
+    const sc = o.status === 'قيد الانتظار' ? 's-waiting' : o.status === 'قيد التنفيذ' ? 's-processing' : o.status === 'مكتمل' ? 's-done' : 's-cancel';
+    const date = o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-MR') : '—';
+    return `<tr>
+      <td style="font-size:11px">${o.orderId}</td>
+      <td>${o.customerName || '—'}</td>
+      <td style="font-size:12px">${o.customerPhone}</td>
+      <td>${o.game}</td>
+      <td>${o.package}</td>
+      <td>${o.amount || '—'}</td>
+      <td>${o.currency || '—'}</td>
+      <td>${o.price} MRU</td>
+      <td>${o.playerId || '—'}</td>
+      <td>${o.paymentMethod}</td>
+      <td style="font-size:12px">${o.senderPhone}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${o.orderId}', this.value)">
+          <option value="قيد الانتظار" ${o.status==='قيد الانتظار'?'selected':''}>قيد الانتظار</option>
+          <option value="قيد التنفيذ" ${o.status==='قيد التنفيذ'?'selected':''}>قيد التنفيذ</option>
+          <option value="مكتمل" ${o.status==='مكتمل'?'selected':''}>مكتمل</option>
+          <option value="ملغي" ${o.status==='ملغي'?'selected':''}>ملغي</option>
+        </select>
+      </td>
+      <td style="font-size:11px">${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterOrders() {
+  const search = document.getElementById('searchOrders').value.trim().toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  let filtered = allOrders;
+  if (search) {
+    filtered = filtered.filter(o =>
+      (o.customerName || '').toLowerCase().includes(search) ||
+      (o.customerPhone || '').includes(search)
+    );
+  }
+  if (status) filtered = filtered.filter(o => o.status === status);
+  renderOrders(filtered);
+}
+
+async function updateStatus(orderId, status) {
+  await api('updateOrderStatus', { orderId, status });
+  const order = allOrders.find(o => o.orderId === orderId);
+  if (order) order.status = status;
+  renderStats();
+}
+
+// ===== GAMES =====
+async function loadGames() {
+  const res = await api('getGames');
+  if (!res.success) return;
+  allGames = res.games;
+  // Also load packages for each game
+  for (const g of allGames) {
+    const pkgRes = await api('getPackages', { gameId: g.gameId });
+    if (pkgRes.success) allPackages[g.gameId] = pkgRes.packages;
+  }
+  renderGames();
+}
+
+function renderGames() {
+  const container = document.getElementById('gamesList');
+  if (allGames.length === 0) {
+    container.innerHTML = '<p class="empty">لا توجد ألعاب</p>';
+    return;
+  }
+  container.innerHTML = allGames.map(g => `
+    <div class="game-item">
+      <img src="${g.icon}" alt="${g.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 44 44%22><rect fill=%22%231a2a4a%22 width=%2244%22 height=%2244%22 rx=%2210%22/><text x=%2222%22 y=%2228%22 fill=%22%231877F2%22 text-anchor=%22middle%22 font-size=%2216%22>🎮</text></svg>'">
+      <div class="info">
+        <div class="name">${g.name}</div>
+        <div class="meta">${g.currency} ${g.requiresId ? '• يتطلب ID' : ''} • الباقات: ${(allPackages[g.gameId] || []).length}</div>
+      </div>
+      <div class="actions">
+        <label class="toggle-switch">
+          <input type="checkbox" ${g.active ? 'checked' : ''} onchange="toggleGame('${g.gameId}', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn btn-sm btn-ghost" onclick="showPackages('${g.gameId}')">📦 الباقات</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGame('${g.gameId}')">حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addGame() {
+  const name = document.getElementById('newGameName').value.trim();
+  const icon = document.getElementById('newGameIcon').value.trim();
+  const currency = document.getElementById('newGameCurrency').value.trim();
+  const unitImage = document.getElementById('newGameUnitImg').value.trim();
+  const requiresId = document.getElementById('newGameRequiresId').checked;
+  const msg = document.getElementById('addGameMsg');
+
+  if (!name) { msg.innerHTML = '<p class="msg error">أدخل اسم اللعبة</p>'; return; }
+
+  const res = await api('addGame', { name, icon, currency, requiresId: String(requiresId), unitImage });
+  if (res.success) {
+    msg.innerHTML = '<p class="msg success">تمت الإضافة</p>';
+    ['newGameName','newGameIcon','newGameCurrency','newGameUnitImg'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('newGameRequiresId').checked = false;
+    await loadGames();
+  } else {
+    msg.innerHTML = `<p class="msg error">${res.error}</p>`;
+  }
+}
+
+async function toggleGame(gameId, active) {
+  await api('toggleGame', { gameId, active: String(active) });
+}
+
+async function deleteGame(gameId) {
+  if (!confirm('هل أنت متأكد من حذف هذه اللعبة؟')) return;
+  await api('deleteGame', { gameId });
+  await loadGames();
+}
+
+// ===== PACKAGES =====
+function showPackages(gameId) {
+  currentGameId = gameId;
+  const game = allGames.find(g => g.gameId === gameId);
+  document.getElementById('packagesTitle').textContent = `باقات ${game.name}`;
+  document.getElementById('packagesSection').style.display = 'block';
+  document.getElementById('newPkgCurrency').value = game.currency;
+  renderPackages();
+}
+
+function hidePackages() {
+  document.getElementById('packagesSection').style.display = 'none';
+  currentGameId = null;
+}
+
+function renderPackages() {
+  const pkgs = allPackages[currentGameId] || [];
+  const container = document.getElementById('packagesList');
+  if (pkgs.length === 0) {
+    container.innerHTML = '<p class="empty">لا توجد باقات</p>';
+    return;
+  }
+  container.innerHTML = pkgs.map(p => `
+    <div class="pkg-item">
+      ${p.isPass && p.passImg ? `<img src="${p.passImg}" style="width:50px;height:32px;border-radius:6px;object-fit:cover">` : ''}
+      <div class="info">
+        <div class="name">${p.isPass ? p.name : p.amount + ' ' + p.currency}${p.popular ? ' 🔥' : ''}</div>
+        <div class="meta">${p.price} MRU ${p.marketPrice ? '(السوق: ' + p.marketPrice + ')' : ''}</div>
+      </div>
+      <div class="actions">
+        <label class="toggle-switch">
+          <input type="checkbox" ${p.active ? 'checked' : ''} onchange="togglePackage('${p.packageId}', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn btn-sm btn-danger" onclick="deletePackage('${p.packageId}')">حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addPackage() {
+  const name = document.getElementById('newPkgName').value.trim();
+  const amount = document.getElementById('newPkgAmount').value;
+  const currency = document.getElementById('newPkgCurrency').value.trim();
+  const price = document.getElementById('newPkgPrice').value;
+  const marketPrice = document.getElementById('newPkgMarketPrice').value;
+  const isPass = document.getElementById('newPkgIsPass').checked;
+  const passImg = document.getElementById('newPkgPassImg').value.trim();
+  const popular = document.getElementById('newPkgPopular').checked;
+  const msg = document.getElementById('addPkgMsg');
+
+  if (!price) { msg.innerHTML = '<p class="msg error">أدخل السعر</p>'; return; }
+
+  const res = await api('addPackage', {
+    gameId: currentGameId, name, amount, currency, price, marketPrice,
+    isPass: String(isPass), passImg, popular: String(popular)
+  });
+
+  if (res.success) {
+    msg.innerHTML = '<p class="msg success">تمت الإضافة</p>';
+    ['newPkgName','newPkgAmount','newPkgPrice','newPkgMarketPrice','newPkgPassImg'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('newPkgIsPass').checked = false;
+    document.getElementById('newPkgPopular').checked = false;
+    document.getElementById('passImgField').classList.add('hidden');
+    // Reload packages for this game
+    const pkgRes = await api('getPackages', { gameId: currentGameId });
+    if (pkgRes.success) allPackages[currentGameId] = pkgRes.packages;
+    renderPackages();
+    renderGames();
+  } else {
+    msg.innerHTML = `<p class="msg error">${res.error}</p>`;
+  }
+}
+
+async function togglePackage(packageId, active) {
+  await api('togglePackage', { packageId, active: String(active) });
+}
+
+async function deletePackage(packageId) {
+  if (!confirm('هل أنت متأكد من حذف هذه الباقة؟')) return;
+  await api('deletePackage', { packageId });
+  const pkgRes = await api('getPackages', { gameId: currentGameId });
+  if (pkgRes.success) allPackages[currentGameId] = pkgRes.packages;
+  renderPackages();
+  renderGames();
+}
+
+// ===== CUSTOMERS =====
+async function loadCustomers() {
+  const [ordersRes, usersRes] = await Promise.all([
+    api('getAllOrders'),
+    api('getGames') // We'll need a getUsers - but for now derive from orders
+  ]);
+
+  // Since there's no getUsers endpoint, let's create a simpler version from orders
+  // Actually, let's load users directly from orders data
+  const orders = ordersRes.success ? ordersRes.orders : [];
+  const customerMap = {};
+  orders.forEach(o => {
+    const phone = o.customerPhone;
+    if (!customerMap[phone]) {
+      customerMap[phone] = { name: o.customerName || '—', phone, orders: 0 };
+    }
+    customerMap[phone].orders++;
+  });
+  const customers = Object.values(customerMap);
+
+  const tbody = document.getElementById('customersTable');
+  if (customers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">لا يوجد عملاء</td></tr>';
+    return;
+  }
+  tbody.innerHTML = customers.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.phone}</td>
+      <td>${c.orders}</td>
+      <td>—</td>
+    </tr>
+  `).join('');
+}
+</script>
+</body>
+</html>
